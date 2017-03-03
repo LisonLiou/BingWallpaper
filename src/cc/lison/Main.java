@@ -1,5 +1,7 @@
 package cc.lison;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +27,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import cc.lison.utils.FileUtils;
 import cc.lison.utils.User32Utils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,9 +39,13 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		OkHttpClient client = new OkHttpClient();
+		// 获取显示器数量
+		GraphicsEnvironment g = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] devices = g.getScreenDevices();
 
-		Request request = new Request.Builder().url(URL_BING + "/HPImageArchive.aspx?format=xml&idx=0&n=2&mkt=zh-cn").get()
+		OkHttpClient client = new OkHttpClient();
+		Request request = new Request.Builder()
+				.url(URL_BING + "/HPImageArchive.aspx?format=xml&idx=0&n=" + devices.length + "&mkt=zh-cn").get()
 				.addHeader("cache-control", "no-cache").addHeader("unique-token", UUID.randomUUID().toString()).build();
 
 		try {
@@ -54,7 +61,10 @@ public class Main {
 
 			// int screenWidth = ((int)
 			// java.awt.Toolkit.getDefaultToolkit().getScreenSize().width);
-			// int screenHeight = ((int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().height);
+			// int screenHeight = ((int)
+			// java.awt.Toolkit.getDefaultToolkit().getScreenSize().height);
+
+			System.out.println(devices.length);
 
 			for (Object obj : objects) {
 				request = new Request.Builder().url(URL_BING + obj).get().addHeader("cache-control", "no-cache")
@@ -63,7 +73,7 @@ public class Main {
 				Response response_ = client.newCall(request).execute();
 				byte[] bytes = response_.body().bytes();
 				String file = obj.toString().substring(obj.toString().lastIndexOf("/") + 1);
-				saveFile(bytes, "./", file);
+				FileUtils.saveFile(bytes, "./", file);
 
 				User32Utils.installWallpaper(file);
 
@@ -74,41 +84,7 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (XPatherException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-	}
-
-	public static void saveFile(byte[] bfile, String filePath, String fileName) {
-		BufferedOutputStream bos = null;
-		FileOutputStream fos = null;
-		File file = null;
-		try {
-			File dir = new File(filePath);
-			if (!dir.exists() && dir.isDirectory()) {// 判断文件目录是否存在
-				dir.mkdirs();
-			}
-			file = new File(filePath + "\\" + fileName);
-			fos = new FileOutputStream(file);
-			bos = new BufferedOutputStream(fos);
-			bos.write(bfile);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (bos != null) {
-				try {
-					bos.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
 		}
 	}
 }

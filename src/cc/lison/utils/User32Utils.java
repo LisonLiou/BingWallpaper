@@ -28,7 +28,7 @@ public class User32Utils {
 
 		boolean SystemParametersInfoA(int uiAction, int uiParam, String fnm, int fWinIni);
 		// SystemParametersInfoA() is the ANSI name used in User32.dll
-	} // end of MyUser32 interface
+	}
 
 	/**
 	 * Wallpaper installation requires three changes to thw Win32 registry, and
@@ -39,8 +39,6 @@ public class User32Utils {
 	public static void installWallpaper(String fnm) {
 		try {
 			String fullFnm = new File(".").getCanonicalPath() + "\\" + fnm;
-			// System.out.println("Full fnm: " + fullFnm);
-
 			/*
 			 * 3 registry key changes to HKEY_CURRENT_USER\Control Panel\Desktop
 			 * These three keys (and many others) are explained at
